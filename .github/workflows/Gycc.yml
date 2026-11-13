@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ôn Tập Lịch Sử 10 - Trắc Nghiệm Tương Tác</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen font-sans">
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="bg-white rounded-2xl shadow-md p-6 mb-8 text-center border-b-4 border-indigo-600">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">Ôn Tập Lịch Sử 10</h1>
+            <p class="text-slate-600">Tài liệu ôn thi: Lịch sử & Sử học, Vai trò Sử học, Một số nền văn minh cổ - trung đại</p>
+            <div class="mt-4 flex justify-center gap-4">
+                <button onclick="switchTab('mcq')" id="btn-tab-mcq" class="px-5 py-2 rounded-xl font-semibold transition bg-indigo-600 text-white shadow">
+                    Trắc nghiệm Nhiều Lựa Chọn
+                </button>
+                <button onclick="switchTab('tf')" id="btn-tab-tf" class="px-5 py-2 rounded-xl font-semibold transition bg-slate-200 text-slate-700 hover:bg-slate-300">
+                    Trắc nghiệm Đúng / Sai
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Container -->
+        <main>
+            <!-- MCQ Section -->
+            <section id="section-mcq" class="space-y-6">
+                <div class="bg-indigo-50 border-l-4 border-indigo-600 p-4 rounded-r-xl">
+                    <h2 class="text-xl font-bold text-indigo-900">Phần 1: Trắc nghiệm nhiều lựa chọn</h2>
+                    <p class="text-indigo-700 text-sm">Chọn đáp án chính xác nhất cho mỗi câu hỏi dưới đây.</p>
+                </div>
+                <div id="mcq-container" class="space-y-6"></div>
+            </section>
+
+            <!-- True/False Section -->
+            <section id="section-tf" class="hidden space-y-6">
+                <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl">
+                    <h2 class="text-xl font-bold text-amber-900">Phần 2: Trắc nghiệm Đúng / Sai</h2>
+                    <p class="text-amber-700 text-sm">Xác định tính đúng/sai cho từng nhận định (a, b, c, d) trong mỗi câu hỏi.</p>
+                </div>
+                <div id="tf-container" class="space-y-6"></div>
+            </section>
+
+            <!-- Submit & Score -->
+            <div class="mt-8 text-center">
+                <button onclick="submitQuiz()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 py-3 rounded-2xl shadow-lg transition transform hover:-translate-y-0.5">
+                    Nộp Bài & Xem Kết Quả
+                </button>
+            </div>
+
+            <!-- Result Modal -->
+            <div id="result-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl">
+                    <h3 class="text-2xl font-bold text-slate-800 mb-2">Kết Quả Ôn Tập</h3>
+                    <p id="score-display" class="text-4xl font-extrabold text-indigo-600 my-4"></p>
+                    <p id="score-message" class="text-slate-600 mb-6"></p>
+                    <button onclick="closeModal()" class="bg-slate-800 hover:bg-slate-900 text-white font-semibold px-6 py-2 rounded-xl transition">
+                        Xem Lại Đáp Án
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const mcqData = [
+            {
+                id: 1,
+                question: "Việc truyền bá những giá trị tốt đẹp trong lịch sử cho thế hệ sau thuộc nhiệm vụ nào sau đây của sử học?",
+                options: [
+                    { text: "Khoa học.", isCorrect: false },
+                    { text: "Giáo dục.", isCorrect: true },
+                    { text: "Kinh tế.", isCorrect: false },
+                    { text: "Du lịch.", isCorrect: false }
+                ],
+                explanation: "Truyền bá giá trị tốt đẹp trong lịch sử cho thế hệ sau nhằm bồi dưỡng tư tưởng, tình cảm, đạo đức chính là chức năng giáo dục của Sử học."
+            },
+            {
+                id: 2,
+                question: "Lịch sử loài người bao gồm các tương tác nào sau đây?",
+                options: [
+                    { text: "Con người với tự nhiên và giữa con người với nhau.", isCorrect: true },
+                    { text: "Chỉ giữa con người với tự nhiên.", isCorrect: false },
+                    { text: "Chỉ giữa con người với con người trong xã hội.", isCorrect: false },
+                    { text: "Giữa con người với các hiện tượng siêu nhiên.", isCorrect: false }
+                ],
+                explanation: "Lịch sử loài người là quá trình hoạt động toàn diện bao gồm cả quan hệ giữa con người với tự nhiên và quan hệ giữa con người với nhau trong xã hội."
+            },
+            {
+                id: 3,
+                question: "Sử liệu được hiểu là",
+                options: [
+                    { text: "Các truyền thuyết dân gian chưa được kiểm chứng.", isCorrect: false },
+                    { text: "Chỉ các văn bản chữ viết cổ được lưu giữ.", isCorrect: false },
+                    { text: "Tất cả những di tích vật chất do người nguyên thủy để lại.", isCorrect: false },
+                    { text: "Các thông tin về quá khứ của loài người.", isCorrect: true }
+                ],
+                explanation: "Sử liệu (nguồn sử liệu) là toàn bộ những thông tin về quá khứ của loài người, giúp nhà sử học khôi phục lại hiện thực lịch sử."
+            },
+            {
+                id: 4,
+                question: "Chức năng nào sau đây không phải là của môn Lịch sử?",
+                options: [
+                    { text: "Khoa học (khôi phục hiện thực lịch sử).", isCorrect: false },
+                    { text: "Dự đoán chính xác tuyệt đối những sự kiện sẽ xảy ra trong tương lai.", isCorrect: true },
+                    { text: "Giáo dục (bồi dưỡng nhân cách, đạo đức).", isCorrect: false },
+                    { text: "Xã hội (cung cấp tri thức để hội nhập và phát triển).", isCorrect: false }
+                ],
+                explanation: "Sử học giúp rút ra bài học kinh nghiệm cho hiện tại và tương lai chứ không thể dự đoán chính xác tuyệt đối mọi sự kiện tương lai."
+            },
+            {
+                id: 5,
+                question: "Hiện thực lịch sử là tất cả những",
+                options: [
+                    { text: "Suy nghĩ và nhận thức của con người về quá khứ.", isCorrect: false },
+                    { text: "Điều đã diễn ra trong quá khứ, tồn tại một cách khách quan, độc lập.", isCorrect: true },
+                    { text: "Tác phẩm văn học viết về các triều đại phong kiến.", isCorrect: false },
+                    { text: "Giả thuyết của nhà nghiên cứu về các sự kiện.", isCorrect: false }
+                ],
+                explanation: "Hiện thực lịch sử là toàn bộ những gì đã diễn ra trong quá khứ, tồn tại độc lập, khách quan, không phụ thuộc vào ý muốn chủ quan của con người."
+            },
+            {
+                id: 6,
+                question: "Di sản văn hóa là một bộ phận quan trọng của",
+                options: [
+                    { text: "Địa lý tự nhiên.", isCorrect: false },
+                    { text: "Lịch sử.", isCorrect: true },
+                    { text: "Toán học ứng dụng.", isCorrect: false },
+                    { text: "Vật lý hiện đại.", isCorrect: false }
+                ],
+                explanation: "Di sản văn hóa là những sản phẩm vật chất và tinh thần được lưu truyền qua các thế hệ, là một bộ phận cốt lõi của lịch sử dân tộc và nhân loại."
+            },
+            {
+                id: 7,
+                question: "Sử học có vai trò quan trọng trong công tác bảo tồn và phát huy giá trị di sản vì",
+                options: [
+                    { text: "Cung cấp cơ sở khoa học cho việc nghiên cứu và bảo tồn di sản.", isCorrect: true },
+                    { text: "Trực tiếp quyết định nguồn kinh phí tu bổ di tích.", isCorrect: false },
+                    { text: "Xây mới hoàn toàn các di tích để thu hút khách du lịch.", isCorrect: false },
+                    { text: "Thay đổi hoàn toàn cấu trúc ban đầu của di sản.", isCorrect: false }
+                ],
+                explanation: "Sử học cung cấp thông tin chính xác, toàn diện và cơ sở khoa học giúp xác định giá trị cốt lõi để bảo tồn nguyên trạng di sản."
+            },
+            {
+                id: 8,
+                question: "Nền văn minh Ai Cập cổ đại hình thành gắn liền với lưu vực con sông nào sau đây?",
+                options: [
+                    { text: "Sông Hằng.", isCorrect: false },
+                    { text: "Sông Hoàng Hà.", isCorrect: false },
+                    { text: "Sông Nin.", isCorrect: true },
+                    { text: "Sông Ti-grít.", isCorrect: false }
+                ],
+                explanation: "Văn minh Ai Cập cổ đại được hình thành và phát triển rực rỡ bên lưu vực sông Nin ở Đông Bắc châu Phi."
+            },
+            {
+                id: 9,
+                question: "Tôn giáo nào sau đây có ảnh hưởng lâu dài và sâu sắc nhất ở Ấn Độ cổ - trung đại?",
+                options: [
+                    { text: "Hin-đu giáo (Bà-la-môn giáo).", isCorrect: true },
+                    { text: "Thiên Chúa giáo.", isCorrect: false },
+                    { text: "Đạo Hồi giáo.", isCorrect: false },
+                    { text: "Đạo Nho.", isCorrect: false }
+                ],
+                explanation: "Hin-đu giáo (và Phật giáo) là những tôn giáo bản địa có ảnh hưởng sâu sắc nhất đến đời sống văn hóa, xã hội Ấn Độ."
+            },
+            {
+                id: 10,
+                question: "Những sản phẩm thủ công nào sau đây của cư dân Trung Hoa cổ - trung đại nổi tiếng trong quan hệ buôn bán quốc tế?",
+                options: [
+                    { text: "Tơ lụa và gốm sứ.", isCorrect: true },
+                    { text: "Đồ đồng và vũ khí sắt.", isCorrect: false },
+                    { text: "Giấy viết và bàn tính.", isCorrect: false },
+                    { text: "Thuyền buồm và la bàn.", isCorrect: false }
+                ],
+                explanation: "Tơ lụa và gốm sứ Trung Hoa là những mặt hàng thủ công nổi tiếng theo 'Con đường tơ lụa' vươn ra thế giới."
+            }
+        ];
+
+        const tfData = [
+            {
+                id: 1,
+                title: "Câu 1: Về sự kiện Mĩ ném bom nguyên tử xuống Nhật Bản tháng 8-1945",
+                statements: [
+                    { text: "Hiện thực lịch sử là đầu tháng 8-1945, quân đội Mĩ ném bom nguyên tử xuống hai thành phố lớn của Nhật Bản.", isCorrect: true, explanation: "Đúng. Đây là sự kiện có thật đã diễn ra trong quá khứ, tồn tại khách quan." },
+                    { text: "Nhận thức về mục đích nhân đạo của việc ném bom có trước khi sự kiện xảy ra.", isCorrect: false, explanation: "Sai. Nhận thức của con người về sự kiện bao giờ cũng phải diễn ra sau khi sự kiện đã xảy ra." },
+                    { text: "Nhận thức lên án hành động ném bom là tội ác chiến tranh hình thành sau khi sự kiện diễn ra.", isCorrect: true, explanation: "Đúng. Đây là nhận thức của con người được đúc rút và đánh giá sau khi sự kiện đã kết thúc." },
+                    { text: "Sự kiện quân đội Mĩ ném bom nguyên tử luôn được mọi người nhận thức hoàn toàn giống nhau và tuyệt đối khách quan.", isCorrect: false, explanation: "Sai. Nhận thức lịch sử rất đa dạng và có thể khác nhau tùy thuộc vào góc độ tiếp cận của mỗi người." }
+                ]
+            },
+            {
+                id: 2,
+                title: "Câu 2: Về sự kiện Chủ tịch Hồ Chí Minh đọc Tuyên ngôn Độc lập ngày 2/9/1945",
+                statements: [
+                    { text: "Ngày 2/9/1945, Chủ tịch Hồ Chí Minh đọc bản Tuyên ngôn Độc lập tại Quảng trường Ba Đình là hiện thực lịch sử.", isCorrect: true, explanation: "Đúng. Đây là sự kiện lịch sử đã diễn ra một cách khách quan." },
+                    { text: "Các bài phân tích lịch sử đánh giá nguyên nhân thắng lợi của Cách mạng tháng Tám thuộc về lĩnh vực lịch sử được con người nhận thức.", isCorrect: true, explanation: "Đúng. Đó là sản phẩm nhận thức, tư duy của con người về hiện thực." },
+                    { text: "Một trong những nguyên nhân dẫn đến nhận thức khác nhau giữa các nhà nghiên cứu là do quan điểm tiếp cận khác nhau.", isCorrect: true, explanation: "Đúng. Mục đích, thái độ và góc độ tiếp cận khác nhau tạo ra sự đa dạng trong nhận thức lịch sử." },
+                    { text: "Tất cả mọi nhận thức về Cách mạng tháng Tám từ trước đến nay đều hoàn toàn đồng nhất và phản ánh đúng 100% mọi khía cạnh.", isCorrect: false, explanation: "Sai. Nhận thức lịch sử có thể thay đổi và có nhiều góc nhìn phong phú theo thời gian." }
+                ]
+            },
+            {
+                id: 3,
+                title: "Câu 3: Vai trò của Sử học và di sản văn hóa",
+                statements: [
+                    { text: "Bảo tồn và phát huy giá trị di sản là hoạt động lưu giữ, bảo vệ và lan tỏa các giá trị của thế hệ trước.", isCorrect: true, explanation: "Đúng. Đây là định nghĩa chính xác về công tác bảo tồn, phát huy di sản." },
+                    { text: "Trách nhiệm bảo tồn di sản lịch sử - văn hóa chỉ thuộc về hai đối tượng là các cấp chính quyền và nhà nghiên cứu.", isCorrect: false, explanation: "Sai. Trách nhiệm này thuộc về toàn xã hội, trong đó cộng đồng và người dân đóng vai trò chủ thể." },
+                    { text: "Việc bảo tồn di sản không phải là cách duy nhất để quảng bá hình ảnh đất nước và con người Việt Nam ra thế giới.", isCorrect: true, explanation: "Đúng. Ngoài bảo tồn di sản, còn rất nhiều phương thức ngoại giao văn hóa, truyền thông khác." },
+                    { text: "Bảo tồn và phát huy giá trị di sản vừa có ý nghĩa giáo dục truyền thống, vừa mang lại giá trị kinh tế - xã hội lớn.", isCorrect: true, explanation: "Đúng. Di sản phục vụ phát triển du lịch văn hóa, thúc đẩy kinh tế cộng đồng bền vững." }
+                ]
+            },
+            {
+                id: 4,
+                title: "Câu 4: Các nền văn minh cổ đại phương Đông và phương Tây",
+                statements: [
+                    { text: "Cư dân Ai Cập cổ đại viết chữ tượng hình trên giấy Pa-pi-rút hoặc khắc trên bia đá, tường đền.", isCorrect: true, explanation: "Đúng. Người Ai Cập sáng tạo ra chữ viết tượng hình gắn liền với cây lau Pa-pi-rút nổi tiếng." },
+                    { text: "Người Lưỡng Hà, Ai Cập và Trung Quốc đều sử dụng chung một loại chất liệu giấy viết giống hệt nhau.", isCorrect: false, explanation: "Sai. Mỗi nền văn minh sử dụng chất liệu khác nhau: Lưỡng Hà dùng đất sét, Trung Quốc khắc giáp cốt/vải lụa/giấy sau đó, Ai Cập dùng Pa-pi-rút." },
+                    { text: "Ấn Độ và Trung Quốc đều là quê hương của nhiều hệ thống tư tưởng và tôn giáo lớn có sức lan tỏa mạnh mẽ.", isCorrect: true, explanation: "Đúng. Ấn Độ sản sinh ra Phật giáo, Hin-đu giáo; Trung Quốc sản sinh Nho giáo, Đạo giáo." },
+                    { text: "Chữ số tự nhiên (bao gồm cả số 0) là một thành tựu toán học nổi bật của văn minh Ấn Độ cổ đại.", isCorrect: true, explanation: "Đúng. Hệ thống chữ số 1-9 và số 0 là cống hiến vĩ đại của người Ấn Độ cho văn minh nhân loại." }
+                ]
+            }
+        ];
+
+        // Render MCQ
+        function renderMCQ() {
+            const container = document.getElementById('mcq-container');
+            let html = '';
+            mcqData.forEach((item, index) => {
+                html += `
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <p class="font-bold text-slate-800 mb-3 text-lg">Câu ${index + 1}: ${item.question}</p>
+                        <div class="space-y-2 mb-4">
+                `;
+                item.options.forEach((opt, optIndex) => {
+                    const optId = `mcq-${item.id}-${optIndex}`;
+                    html += `
+                        <label for="${optId}" class="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer transition">
+                            <input type="radio" name="mcq-${item.id}" value="${optIndex}" id="${optId}" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
+                            <span class="text-slate-700">${opt.text}</span>
+                        </label>
+                    `;
+                });
+                html += `
+                        </div>
+                        <div id="mcq-feedback-${item.id}" class="hidden p-3 rounded-xl text-sm"></div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // Render T/F
+        function renderTF() {
+            const container = document.getElementById('tf-container');
+            let html = '';
+            tfData.forEach((item, index) => {
+                html += `
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="font-bold text-slate-800 mb-4 text-lg">${item.title}</h3>
+                        <div class="space-y-4">
+                `;
+                item.statements.forEach((stmt, sIndex) => {
+                    html += `
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                            <p class="text-slate-800 font-medium mb-2"><span class="font-bold text-indigo-600 mr-2">${String.fromCharCode(97 + sIndex)})</span>${stmt.text}</p>
+                            <div class="flex gap-4 mb-2">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="tf-${item.id}-${sIndex}" value="true" class="text-indigo-600">
+                                    <span class="font-semibold text-slate-700">Đúng</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="tf-${item.id}-${sIndex}" value="false" class="text-indigo-600">
+                                    <span class="font-semibold text-slate-700">Sai</span>
+                                </label>
+                            </div>
+                            <div id="tf-feedback-${item.id}-${sIndex}" class="hidden text-sm mt-1 p-2 rounded"></div>
+                        </div>
+                    `;
+                });
+                html += `</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function switchTab(tab) {
+            const btnMcq = document.getElementById('btn-tab-mcq');
+            const btnTf = document.getElementById('btn-tab-tf');
+            const secMcq = document.getElementById('section-mcq');
+            const secTf = document.getElementById('section-tf');
+
+            if (tab === 'mcq') {
+                btnMcq.className = "px-5 py-2 rounded-xl font-semibold transition bg-indigo-600 text-white shadow";
+                btnTf.className = "px-5 py-2 rounded-xl font-semibold transition bg-slate-200 text-slate-700 hover:bg-slate-300";
+                secMcq.classList.remove('hidden');
+                secTf.classList.add('hidden');
+            } else {
+                btnTf.className = "px-5 py-2 rounded-xl font-semibold transition bg-indigo-600 text-white shadow";
+                btnMcq.className = "px-5 py-2 rounded-xl font-semibold transition bg-slate-200 text-slate-700 hover:bg-slate-300";
+                secTf.classList.remove('hidden');
+                secMcq.classList.add('hidden');
+            }
+        }
+
+        function submitQuiz() {
+            let totalCorrect = 0;
+            let totalQuestions = mcqData.length;
+
+            // Check MCQ
+            mcqData.forEach(item => {
+        
